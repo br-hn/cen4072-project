@@ -1,3 +1,4 @@
+package cen4072.project.utils;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
@@ -13,9 +14,9 @@ import org.openqa.selenium.WebDriver;
 
 public class MangaDexUtils {
 
-    public static final String URL = "https://mangadex.org";
+    public static final String MANGADEX = "https://mangadex.org";
 
-    private static final List<String> MetadataFields = List.of(
+    static final List<String> MetadataFields = List.of(
         "Authors",
         "Artists",
         "Genres",
@@ -23,6 +24,20 @@ public class MangaDexUtils {
         "Demographic",
         "Alternative Titles"
     );
+
+    public record SearchResult(String title, String description, WebElement card) {
+        public SearchResult(WebElement card) {
+            this(
+                card.findElement(By.className("title")).getText(),
+                card.findElement(By.className("description")).getText(),
+                card
+            );
+        }
+
+        public String GetId() throws Exception {
+            return getMangaId(card.findElement(By.cssSelector(":scope > a")).getAttribute("href"));
+        }
+    }
 
     static Pattern mangaIdPattern = Pattern.compile("title/([\\d\\w-]+)");
 
@@ -41,7 +56,7 @@ public class MangaDexUtils {
         var og = driver.getWindowHandle();
 
         driver.switchTo().newWindow(WindowType.TAB);
-        driver.get(URL + "/title/" + id);
+        driver.get(MANGADEX + "/title/" + id);
 
         return og;
     }
