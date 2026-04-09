@@ -1,4 +1,4 @@
-package cen4072.project.utils;
+package utils;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
@@ -25,17 +25,22 @@ public class MangaDexUtils {
         "Alternative Titles"
     );
 
-    public record SearchResult(String title, String description, WebElement card) {
+    public record SearchResult(String title, String description, List<String> tags, WebElement card) {
         public SearchResult(WebElement card) {
             this(
                 card.findElement(By.className("title")).getText(),
                 card.findElement(By.className("description")).getText(),
+                card.findElements(By.cssSelector(".tags a[href^='/tag/']")).stream().map(t -> t.getAttribute("textContent")).toList(),
                 card
             );
         }
 
         public String GetId() throws Exception {
             return getMangaId(card.findElement(By.cssSelector(":scope > a")).getAttribute("href"));
+        }
+
+        public String getStatus() {
+            return card.findElement(By.cssSelector("[style='grid-area: status;']")).getText();
         }
     }
 
@@ -100,7 +105,7 @@ public class MangaDexUtils {
         var publication = driver.findElement(By.xpath("//span[contains(., 'Publication')]"));
         var sypnosis = driver.findElement(By.cssSelector("[style='grid-area: synopsis;']"));
 
-        metadata.put("Status", List.of(publication.getText().substring(12).stripLeading().toLowerCase()));
+        metadata.put("Status", List.of(publication.getAttribute("textContent").substring(12).stripLeading()));
 
         metadata.put("Sypnosis", List.of(sypnosis.getText()));
 
