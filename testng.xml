@@ -1,8 +1,51 @@
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
 <suite name="MangadexSuite">
-  <test name="Tests">
-    <classes>
 
+  <test name="SearchTest">
+    <classes>
+      <class name="SearchTest" />
+    </classes>
+  </test>
+
+  <test name="FilteringTest">
+    <classes>
+      <class name="FilteringTest" />
+    </classes>
+  </test>
+
+  <test name="DetailsPageTest">
+    <classes>
+      <class name="DetailsPageTest" />
+    </classes>
+  </test>
+
+  <test name="ReaderTest">
+    <classes>
+      <class name="ReaderTest" />
+    </classes>
+  </test>
+
+  <test name="UserAuthTest">
+    <classes>
+      <class name="UserAuthTest" />
+    </classes>
+  </test>
+
+  <test name="UserProfileTest">
+    <classes>
+      <class name="UserProfileTest" />
+    </classes>
+  </test>
+
+  <test name="UserLibraryTest">
+    <classes>
+      <class name="UserLibraryTest" />
+    </classes>
+  </test>
+
+  <test name="UserFeedTest">
+    <classes>
+      <class name="UserFeedTest" />
     </classes>
   </test>
 </suite>
