@@ -1,9 +1,15 @@
 package utils;
+import java.net.URI;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.WindowType;
@@ -25,18 +31,23 @@ public class MangaDexUtils {
         "Alternative Titles"
     );
 
-    public record SearchResult(String title, String description, List<String> tags, WebElement card) {
-        public SearchResult(WebElement card) {
+    public record SearchResult(
+        String id,
+        String title, 
+        String description,
+        String status,
+        List<String> tags,
+        WebElement card
+    ) {
+        public SearchResult(WebElement card) throws Exception {
             this(
+                getMangaId(card.findElement(By.xpath(".//a")).getAttribute("href")),
                 card.findElement(By.className("title")).getText(),
                 card.findElement(By.className("description")).getText(),
+                card.findElement(By.cssSelector("[style='grid-area: status;']")).getText(),
                 card.findElements(By.cssSelector(".tags a[href^='/tag/']")).stream().map(t -> t.getAttribute("textContent")).toList(),
                 card
             );
-        }
-
-        public String GetId() throws Exception {
-            return getMangaId(card.findElement(By.cssSelector(":scope > a")).getAttribute("href"));
         }
 
         public String getStatus() {
@@ -76,7 +87,10 @@ public class MangaDexUtils {
             .pollingEvery(Duration.ofMillis(300))
             .withTimeout(Duration.ofSeconds(8));
 
-        var fields = wait.until(ExpectedConditions.presenceOfNestedElementsLocatedBy(By.id(id), By.cssSelector(":scope > div:not(.hidden)")));
+
+        wait.until(ExpectedConditions.urlContains("/title/"));
+
+        var fields = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.cssSelector("[id='" + id + "'] > div:not(.hidden)")));
 
         Map<String, List<String>> metadata = new HashMap<>();
 
@@ -114,6 +128,29 @@ public class MangaDexUtils {
         driver.switchTo().window(og);
 
         return metadata;
+    }
+
+    public static Map<String, String> getQueryParams(String url) {
+        try {
+            URI uri = new URI(url);
+            String query = uri.getQuery();
+
+            if (query == null || query.isEmpty()) {
+                return Collections.emptyMap();
+            }
+
+            return Arrays.stream(query.split("&"))
+                .map(param -> param.split("=", 2))
+                .collect(Collectors.toMap(
+                    p -> URLDecoder.decode(p[0], StandardCharsets.UTF_8),
+                    p -> p.length > 1
+                        ? URLDecoder.decode(p[1], StandardCharsets.UTF_8)
+                        : ""
+                )
+            );
+        } catch (Exception e) {
+            throw new RuntimeException("Invalid URL: " + url, e);
+        }
     }
 
 }
