@@ -44,7 +44,8 @@ public class SearchTest extends BaseTest {
         assertEquals(query, params.get("q"));
     }
 
-    public void testSearchByTitle() throws Exception {
+    @Test
+    public void testSearchRelevance() throws Exception {
 
         var query = "One Piece";
 
